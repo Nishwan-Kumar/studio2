@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useAuth } from '@/context/auth-context';
@@ -15,18 +14,31 @@ export default function DashboardLayout({
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  // The middleware is the primary gatekeeper. This check is a client-side
-  // fallback for consistency and to handle cases where the user's session
-  // expires while they are on the site. We no longer redirect from here if loading.
   useEffect(() => {
+    // This check is a client-side fallback for added security.
+    // The primary protection is the middleware.
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
 
-  // While the auth state is loading, or if the user is not yet available,
-  // display a skeleton loader. This prevents the redirect loop.
-  if (loading || !user) {
+  // While the auth state is loading, display a skeleton loader.
+  if (loading) {
+    return (
+        <div className="space-y-8">
+            <div className="flex justify-between items-center">
+                <Skeleton className="h-12 w-64" />
+                <Skeleton className="h-10 w-40" />
+            </div>
+            <Skeleton className="h-96 w-full" />
+        </div>
+    );
+  }
+  
+  // If there is no user after loading, middleware should have already
+  // redirected. If not, the useEffect will. We can render null or a 
+  // message here, but the skeleton is fine for the brief moment it might appear.
+  if (!user) {
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-center">
