@@ -10,8 +10,12 @@ import { DashboardContentClient } from './dashboard-content-client';
 export default function DashboardPage() {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
+  // The DashboardLayout handles the main loading and auth checks.
+  // This page can assume that if it renders, the user is authenticated.
+  if (loading || !user) {
+    // This state is primarily handled by the layout, but as a fallback,
+    // we can show a minimal skeleton.
+     return (
       <div className="space-y-8">
         <div className="flex justify-between items-center mb-8">
           <Skeleton className="h-12 w-64" />
@@ -22,22 +26,9 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
-    // This can happen briefly on logout or if session expires.
-    // The middleware prevents unauthorized access, so we just show a message.
-    return (
-      <div className="text-center py-12">
-        <p className="text-lg text-muted-foreground">You need to be logged in to view this page.</p>
-        <Button asChild className="mt-4">
-          <Link href="/login">Login</Link>
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="fade-in">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <h1 className="text-4xl font-headline font-bold">Welcome, {user.displayName || 'User'}</h1>
         <Button asChild>
           <Link href="/dashboard/create">Create New Post</Link>
