@@ -19,4 +19,5 @@ export type Post = {
   author: User;
   createdAt: string;
   comments: Comment[];
+  likes: number;
 };

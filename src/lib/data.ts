@@ -16,6 +16,7 @@ const posts: Post[] = [
 We'll look at how user interaction can create a more personal and immersive experience, breaking the fourth wall in ways traditional media never could. We will also explore the challenges, such as maintaining narrative coherence in a non-linear format and ensuring accessibility for all users. Join us on a journey through the pixels and code that are redefining the ancient art of the story.`,
     author: users[0],
     createdAt: '2024-05-10T14:48:00.000Z',
+    likes: 12,
     comments: [
       { id: 'comment-1', text: 'A fascinating read! Really makes you think about the future of media.', author: users[1], createdAt: '2024-05-10T15:12:00.000Z' },
       { id: 'comment-2', text: 'I loved the examples you provided. The interactive documentary was mind-blowing.', author: users[2], createdAt: '2024-05-11T09:30:00.000Z' },
@@ -30,6 +31,7 @@ We'll look at how user interaction can create a more personal and immersive expe
 This approach isn't just about aesthetics; it's about functionality. A minimalist design often leads to better performance, easier navigation, and a more serene user experience. This article explores the principles of minimalist web design, showcases stunning examples, and provides practical tips for decluttering your own digital space without sacrificing personality or power.`,
     author: users[1],
     createdAt: '2024-05-12T11:20:00.000Z',
+    likes: 25,
     comments: [
         { id: 'comment-3', text: 'Great points. I\'m currently redesigning my portfolio and this is super helpful.', author: users[0], createdAt: '2024-05-12T13:05:00.000Z' },
     ],
@@ -43,6 +45,7 @@ This approach isn't just about aesthetics; it's about functionality. A minimalis
 We'll start with the basic unit, the neuron, and build up to multi-layered networks (deep learning). We'll cover concepts like activation functions, backpropagation, and gradient descent in an accessible way. Whether you're a budding data scientist or just curious about the technology that powers your favorite apps, this deep dive will provide a solid foundation in the world of neural networks.`,
     author: users[2],
     createdAt: '2024-05-14T08:55:00.000Z',
+    likes: 8,
     comments: [],
   },
    {
@@ -54,6 +57,7 @@ We'll start with the basic unit, the neuron, and build up to multi-layered netwo
 We'll highlight companies leading the charge and discuss how developers and consumers can make more environmentally conscious choices. The path to a greener future is paved with smart, sustainable technology.`,
     author: users[0],
     createdAt: '2024-05-16T16:21:00.000Z',
+    likes: 18,
     comments: [
       { id: 'comment-4', text: 'This is such an important topic. Glad to see it getting more attention.', author: users[2], createdAt: '2024-05-16T18:00:00.000Z' },
     ],
