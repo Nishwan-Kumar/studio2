@@ -14,8 +14,8 @@ export default function DashboardLayout({
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  // The middleware protects this route. We no longer need a client-side redirect.
-  // We just need to handle the loading state.
+  // The middleware protects this route. We use the client-side check to handle the loading state
+  // and as a fallback.
 
   // While the auth state is being confirmed, display a skeleton loader.
   if (loading) {
@@ -30,17 +30,12 @@ export default function DashboardLayout({
     );
   }
   
-  // If, after loading, there is no user, the middleware will handle the redirect.
-  // This is a fallback case and should ideally not be reached if middleware is working.
-  // We previously had a redirect here which was causing the bug. It has been removed.
+  // If, after loading, there is no user, the middleware should have already redirected.
+  // This client-side redirect is a final safety net.
   if (!user) {
-    // A full page redirect is a final safety net if the middleware somehow fails.
-     useEffect(() => {
-        window.location.href = '/login';
-    }, []);
-    
+    router.push('/login'); // Use router.push for client-side navigation
     return (
-        <div className="space-y-8 p-8">
+         <div className="space-y-8 p-8">
             <div className="flex justify-between items-center">
                 <Skeleton className="h-12 w-64" />
                 <Skeleton className="h-10 w-40" />
@@ -50,6 +45,6 @@ export default function DashboardLayout({
     );
   }
 
-  // Once the user is confirmed, render the children.
+  // Once the user is confirmed, render the dashboard.
   return <>{children}</>;
 }
