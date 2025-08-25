@@ -59,7 +59,7 @@ export default function LoginPage() {
         title: "Login Successful",
         description: "Welcome back! Redirecting you to the dashboard...",
       });
-      
+
       // Instead of router.push, we do a full page reload to the dashboard.
       // This ensures the middleware has the latest cookie information.
       window.location.href = '/dashboard';
