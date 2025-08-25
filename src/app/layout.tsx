@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Header } from '@/components/header';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/context/auth-context';
+import { Footer } from '@/components/footer';
 
 export const metadata: Metadata = {
   title: 'Blog Page',
@@ -30,6 +31,7 @@ export default function RootLayout({
             <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {children}
             </main>
+            <Footer />
             </div>
             <Toaster />
         </AuthProvider>
