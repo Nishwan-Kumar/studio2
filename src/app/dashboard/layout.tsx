@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useAuth } from '@/context/auth-context';
@@ -14,6 +15,8 @@ export default function DashboardLayout({
   const { user, loading } = useAuth();
   const router = useRouter();
 
+  // Middleware now handles the primary redirection. 
+  // This useEffect is a fallback and ensures client-side consistency.
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
