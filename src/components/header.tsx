@@ -24,8 +24,8 @@ export function Header() {
   const handleLogout = async () => {
     await signOut(auth);
     await clearAuthCookie();
-    router.push('/');
-    router.refresh();
+    // Full page reload to ensure the server knows the user is logged out.
+    window.location.href = '/';
   };
 
   return (

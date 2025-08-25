@@ -22,7 +22,7 @@ const loginFormSchema = z.object({
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 const setAuthCookie = async (user: User) => {
-  const token = await user.getIdToken(true); // Force refresh the token
+  const token = await user.getIdToken(true);
   const response = await fetch('/api/auth/login', {
     method: 'POST',
     headers: {
@@ -53,17 +53,17 @@ export default function LoginPage() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       
-      // Explicitly wait for the cookie to be set via our API route
       await setAuthCookie(userCredential.user);
       
       toast({
         title: "Login Successful",
-        description: "Welcome back!",
+        description: "Welcome back! Redirecting you to the dashboard...",
       });
 
-      // Now we can safely redirect
-      router.push('/dashboard');
-      router.refresh(); // Tigger a server-side refresh to ensure middleware re-evaluates
+      // Instead of router.push, we do a full page reload to the dashboard.
+      // This ensures the middleware has the latest cookie information.
+      window.location.href = '/dashboard';
+      
     } catch (error: any) {
       toast({
         title: "Login Failed",
