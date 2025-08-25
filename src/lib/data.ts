@@ -1,4 +1,7 @@
+
 import type { Post, User } from './types';
+import { auth, db } from './firebase';
+import { getDoc, doc } from 'firebase/firestore';
 
 const users: User[] = [
   { id: 'user-1', name: 'Alex Doe', avatarUrl: 'https://placehold.co/100x100.png', role: 'admin' },
@@ -65,45 +68,61 @@ We'll highlight companies leading the charge and discuss how developers and cons
 ];
 
 export async function getPosts(): Promise<Post[]> {
-<<<<<<< HEAD
-=======
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 500));
->>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
   return Promise.resolve(posts);
 }
 
 export async function getPost(id: string): Promise<Post | undefined> {
-<<<<<<< HEAD
-=======
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 300));
->>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
   return Promise.resolve(posts.find((post) => post.id === id));
 }
 
 export async function getUserPosts(userId: string): Promise<Post[]> {
-<<<<<<< HEAD
-  // For demo purposes, map Firebase UIDs to mock user IDs
-  // In a real application, this would query Firestore for posts by user ID
-  const userMap: Record<string, string> = {
-    // Map Firebase UIDs to mock user IDs
-    // This is just for demo - in production, you'd use real Firestore queries
-    'firebase-uid-1': 'user-1',
-    'firebase-uid-2': 'user-2', 
-    'firebase-uid-3': 'user-3',
-  };
-  
-  const mockUserId = userMap[userId] || userId;
-  return Promise.resolve(posts.filter(post => post.author.id === mockUserId));
-=======
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 400));
-  return Promise.resolve(posts.filter(post => post.author.id === userId));
->>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
+  // In a real app, you would fetch this from Firestore based on the userId
+  // For this demo, we'll filter the mock data.
+  if (!userId) return [];
+  const allPosts = await getPosts();
+  // For demo, we let user-1 be an admin who can see all posts.
+  if (userId === 'user-1') return allPosts;
+  return allPosts.filter(p => p.author.id === userId);
 }
 
-// Mock current user
+
+// This function is intended for client-side use where auth.currentUser is available.
+// It is not safe for server-side rendering as it can be null.
 export async function getCurrentUser(): Promise<User> {
-  return Promise.resolve(users[0]);
+    const user = auth.currentUser;
+    
+    if (!user) {
+        // This will be the case on the server or if the user is not logged in.
+        // Return a default guest user to prevent crashes.
+        return {
+            id: 'guest',
+            name: 'Guest',
+            avatarUrl: '',
+            role: undefined,
+        };
+    }
+
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+        const userData = userSnap.data();
+        return {
+            id: user.uid,
+            name: userData.name,
+            avatarUrl: userData.avatarUrl,
+            role: userData.role
+        };
+    }
+
+    // Fallback for users authenticated but without a DB record (should not happen in normal flow)
+    return {
+        id: user.uid,
+        name: user.email || 'User',
+        avatarUrl: 'https://placehold.co/100x100.png',
+    };
 }

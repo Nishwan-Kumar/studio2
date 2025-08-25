@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -21,21 +22,32 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
+import { getUserPosts } from '@/lib/data';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface DashboardContentClientProps {
   currentUser: User;
-  initialPosts: Post[];
 }
 
-export default function DashboardContentClient({ currentUser, initialPosts }: DashboardContentClientProps) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
+export function DashboardContentClient({ currentUser }: DashboardContentClientProps) {
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const { toast } = useToast();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function fetchUserPosts() {
+      setLoading(true);
+      const userPosts = await getUserPosts(currentUser.id);
+      setPosts(userPosts);
+      setLoading(false);
+    }
+    fetchUserPosts();
+  }, [currentUser.id]);
+
 
   const handleDelete = async (postId: string) => {
     setIsDeleting(postId);
-    setLoading(true);
     try {
       // Simulate API call for deletion
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -56,6 +68,38 @@ export default function DashboardContentClient({ currentUser, initialPosts }: Da
     }
   };
 
+  if (loading) {
+    return (
+        <Card>
+            <CardContent className="p-0">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="font-headline">Title</TableHead>
+                            <TableHead className="font-headline hidden md:table-cell">Date</TableHead>
+                            <TableHead className="font-headline text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {[...Array(3)].map((_, i) => (
+                            <TableRow key={i}>
+                                <TableCell><Skeleton className="h-5 w-3/4" /></TableCell>
+                                <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-24" /></TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Skeleton className="h-8 w-8" />
+                                        <Skeleton className="h-8 w-8" />
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    );
+  }
+
   return (
     <Card>
       <CardContent className="p-0">
@@ -75,51 +119,55 @@ export default function DashboardContentClient({ currentUser, initialPosts }: Da
                     <Link href={`/posts/${post.id}`} className="hover:underline">
                       {post.title}
                     </Link>
-                    <Badge variant="secondary" className="ml-2">Your Post</Badge>
+                    {post.author.id === currentUser.id && <Badge variant="secondary" className="ml-2">Your Post</Badge>}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {format(new Date(post.createdAt), 'PPP')}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/dashboard/edit/${post.id}`}>
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">Edit</span>
-                        </Link>
-                      </Button>
-                      
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-destructive hover:text-destructive"
-                            disabled={isDeleting === post.id}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete your post
-                              "{post.title}" and remove it from our servers.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction 
-                              onClick={() => handleDelete(post.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              {isDeleting === post.id ? "Deleting..." : "Delete"}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                       { (currentUser.role === 'admin' || post.author.id === currentUser.id) && 
+                        <>
+                            <Button variant="ghost" size="icon" asChild>
+                                <Link href={`/dashboard/edit/${post.id}`}>
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">Edit</span>
+                                </Link>
+                            </Button>
+                            
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="text-destructive hover:text-destructive"
+                                    disabled={isDeleting === post.id}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                    <span className="sr-only">Delete</span>
+                                </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete your post
+                                    "{post.title}" and remove it from our servers.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                    onClick={() => handleDelete(post.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                    {isDeleting === post.id ? "Deleting..." : "Delete"}
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </>
+                       }
                     </div>
                   </TableCell>
                 </TableRow>
@@ -146,3 +194,4 @@ export default function DashboardContentClient({ currentUser, initialPosts }: Da
     </Card>
   );
 }
+
