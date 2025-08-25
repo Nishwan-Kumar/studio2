@@ -11,10 +11,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, setDoc } from "firebase/firestore"; 
 import Link from 'next/link';
 
 const signupFormSchema = z.object({
+  name: z.string().min(1, "Name is required."),
   email: z.string().email("Invalid email address."),
   password: z.string().min(6, "Password must be at least 6 characters."),
   confirmPassword: z.string()
@@ -32,6 +34,7 @@ export default function SignupPage() {
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: ""
@@ -40,7 +43,16 @@ export default function SignupPage() {
 
   const onSubmit = async (data: SignupFormValues) => {
     try {
-      await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+      
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        name: data.name,
+        email: data.email,
+        avatarUrl: `https://placehold.co/100x100.png`
+      });
+
       toast({
         title: "Account Created",
         description: "You have been successfully signed up.",
@@ -60,11 +72,24 @@ export default function SignupPage() {
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Create an Account</CardTitle>
-          <CardDescription>Enter your email and password to sign up.</CardDescription>
+          <CardDescription>Enter your details to sign up.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+               <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="email"
