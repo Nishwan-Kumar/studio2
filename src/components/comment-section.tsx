@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Comment } from '@/lib/types';
@@ -7,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface CommentSectionProps {
   comments: Comment[];
@@ -16,6 +17,12 @@ interface CommentSectionProps {
 export function CommentSection({ comments: initialComments }: CommentSectionProps) {
   const { toast } = useToast();
   const [comments, setComments] = useState(initialComments);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -57,7 +64,7 @@ export function CommentSection({ comments: initialComments }: CommentSectionProp
               <div className="flex items-center justify-between">
                 <p className="font-semibold">{comment.author.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                  {isClient ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true }) : ''}
                 </p>
               </div>
               <p className="text-foreground/80 mt-1">{comment.text}</p>

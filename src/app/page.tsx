@@ -1,3 +1,6 @@
+
+"use client";
+
 import Link from 'next/link';
 import { getPosts } from '@/lib/data';
 import type { Post } from '@/lib/types';
@@ -6,9 +9,20 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { Heart } from 'lucide-react';
 import { LikeButton } from '@/components/like-button';
+import { useEffect, useState } from 'react';
 
-export default async function Home() {
-  const posts = await getPosts();
+export default function Home() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    async function loadPosts() {
+        const fetchedPosts = await getPosts();
+        setPosts(fetchedPosts);
+    }
+    loadPosts();
+  }, []);
 
   return (
     <div className="fade-in">
@@ -32,7 +46,7 @@ export default async function Home() {
                     </Avatar>
                     <div>
                         <p className="text-sm font-medium">{post.author.name}</p>
-                        <p className="text-xs text-muted-foreground">{format(new Date(post.createdAt), 'PPP')}</p>
+                        <p className="text-xs text-muted-foreground">{isClient ? format(new Date(post.createdAt), 'PPP') : ''}</p>
                     </div>
                 </div>
                 <LikeButton initialLikes={post.likes} />
