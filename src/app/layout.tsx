@@ -8,7 +8,7 @@ import { AuthProvider } from '@/context/auth-context';
 import { Footer } from '@/components/footer';
 
 export const metadata: Metadata = {
-  title: 'Echo Chamber',
+  title: 'Blog Page',
   description: 'A place for thoughts and ideas to reverberate.',
 };
 

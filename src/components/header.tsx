@@ -33,7 +33,7 @@ export function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="text-2xl font-headline font-bold text-foreground hover:text-primary transition-colors">
-            Echo Chamber
+            Blog Page
           </Link>
           <div className="flex items-center space-x-4">
             {user ? (
