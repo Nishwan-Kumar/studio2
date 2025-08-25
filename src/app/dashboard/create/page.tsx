@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const postFormSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -24,7 +25,7 @@ type PostFormValues = z.infer<typeof postFormSchema>;
 export default function CreatePostPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postFormSchema),
@@ -71,6 +72,36 @@ export default function CreatePostPage() {
         variant: "destructive",
       });
     }
+  }
+
+  if (authLoading) {
+    return (
+        <div className="max-w-4xl mx-auto">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-9 w-64" />
+                </CardHeader>
+                <CardContent className="space-y-8">
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-12" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-72 w-full" />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                        <Skeleton className="h-10 w-24" />
+                        <Skeleton className="h-10 w-24" />
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    )
   }
 
   return (
