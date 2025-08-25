@@ -14,15 +14,10 @@ export default function DashboardLayout({
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    // This check is a client-side fallback for added security.
-    // The primary protection is the middleware.
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
+  // The middleware protects this route. We no longer need a client-side redirect.
+  // We just need to handle the loading state.
 
-  // While the auth state is loading, display a skeleton loader.
+  // While the auth state is being confirmed, display a skeleton loader.
   if (loading) {
     return (
         <div className="space-y-8">
@@ -35,10 +30,14 @@ export default function DashboardLayout({
     );
   }
   
-  // If there is no user after loading, middleware should have already
-  // redirected. If not, the useEffect will. We can render null or a 
-  // message here, but the skeleton is fine for the brief moment it might appear.
+  // If, after loading, there is no user, the middleware should have already
+  // redirected. This is a fallback state.
   if (!user) {
+    // A full page redirect to ensure middleware re-evaluates.
+     useEffect(() => {
+        router.push('/login');
+    }, [router]);
+    
     return (
         <div className="space-y-8">
             <div className="flex justify-between items-center">
