@@ -2,6 +2,7 @@ export type User = {
   id: string;
   name: string;
   avatarUrl: string;
+  role?: 'admin';
 };
 
 export type Comment = {

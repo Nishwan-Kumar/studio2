@@ -1,7 +1,7 @@
 import type { Post, User } from './types';
 
 const users: User[] = [
-  { id: 'user-1', name: 'Alex Doe', avatarUrl: 'https://placehold.co/100x100.png' },
+  { id: 'user-1', name: 'Alex Doe', avatarUrl: 'https://placehold.co/100x100.png', role: 'admin' },
   { id: 'user-2', name: 'Jane Smith', avatarUrl: 'https://placehold.co/100x100.png' },
   { id: 'user-3', name: 'Sam Wilson', avatarUrl: 'https://placehold.co/100x100.png' },
 ];
