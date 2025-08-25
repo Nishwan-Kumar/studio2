@@ -20,8 +20,6 @@ const nextConfig: NextConfig = {
   },
   // Performance optimizations
   devIndicators: false,
-  // Enable SWC minification for faster builds
-  swcMinify: true,
   // Compress responses with gzip
   compress: true,
   // Enable experimental features for better performance
