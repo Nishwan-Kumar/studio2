@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import Link from 'next/link';
 
@@ -20,6 +20,22 @@ const loginFormSchema = z.object({
 });
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
+
+const setAuthCookie = async (user: User) => {
+  const token = await user.getIdToken(true); // Force refresh the token
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to set auth cookie');
+  }
+};
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,12 +51,19 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      
+      // Explicitly wait for the cookie to be set via our API route
+      await setAuthCookie(userCredential.user);
+      
       toast({
         title: "Login Successful",
         description: "Welcome back!",
       });
+
+      // Now we can safely redirect
       router.push('/dashboard');
+      router.refresh(); // Tigger a server-side refresh to ensure middleware re-evaluates
     } catch (error: any) {
       toast({
         title: "Login Failed",

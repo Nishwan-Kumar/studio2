@@ -18,16 +18,6 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
 });
 
-const setAuthCookie = async (user: User | null) => {
-    if (user) {
-        const token = await user.getIdToken();
-        document.cookie = `firebaseIdToken=${token}; path=/; max-age=3600`; // 1 hour expiry
-    } else {
-        document.cookie = 'firebaseIdToken=; path=/; max-age=-1'; // Delete cookie
-    }
-}
-
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +25,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      await setAuthCookie(user);
       setLoading(false);
     });
 
