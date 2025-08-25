@@ -1,7 +1,5 @@
 
 import type { Post, User } from './types';
-import { auth, db } from './firebase';
-import { getDoc, doc } from 'firebase/firestore';
 
 const users: User[] = [
   { id: 'user-1', name: 'Alex Doe', avatarUrl: 'https://placehold.co/100x100.png', role: 'admin' },
@@ -84,45 +82,11 @@ export async function getUserPosts(userId: string): Promise<Post[]> {
   // For this demo, we'll filter the mock data.
   if (!userId) return [];
   const allPosts = await getPosts();
-  // For demo, we let user-1 be an admin who can see all posts.
-  if (userId === 'user-1') return allPosts;
+  
+  const user = users.find(u => u.id === userId);
+  if (user?.role === 'admin') {
+      return allPosts;
+  }
+  
   return allPosts.filter(p => p.author.id === userId);
-}
-
-
-// This function is intended for client-side use where auth.currentUser is available.
-// It is not safe for server-side rendering as it can be null.
-export async function getCurrentUser(): Promise<User> {
-    const user = auth.currentUser;
-    
-    if (!user) {
-        // This will be the case on the server or if the user is not logged in.
-        // Return a default guest user to prevent crashes.
-        return {
-            id: 'guest',
-            name: 'Guest',
-            avatarUrl: '',
-            role: undefined,
-        };
-    }
-
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.exists()) {
-        const userData = userSnap.data();
-        return {
-            id: user.uid,
-            name: userData.name,
-            avatarUrl: userData.avatarUrl,
-            role: userData.role
-        };
-    }
-
-    // Fallback for users authenticated but without a DB record (should not happen in normal flow)
-    return {
-        id: user.uid,
-        name: user.email || 'User',
-        avatarUrl: 'https://placehold.co/100x100.png',
-    };
 }

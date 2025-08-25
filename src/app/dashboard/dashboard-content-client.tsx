@@ -194,4 +194,3 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
     </Card>
   );
 }
-
