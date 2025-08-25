@@ -9,6 +9,7 @@ import { useAuth } from '@/context/auth-context';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const clearAuthCookie = async () => {
   await fetch('/api/auth/logout', {
@@ -20,6 +21,12 @@ const clearAuthCookie = async () => {
 export function Header() {
   const { user } = useAuth();
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -36,34 +43,36 @@ export function Header() {
             Blog Page
           </Link>
           <div className="flex items-center space-x-4">
-            {user ? (
-              <>
-                <Button asChild>
-                  <Link href="/dashboard/create">
-                    <PenSquare className="mr-2 h-4 w-4" />
-                    New Post
+            {isClient && (
+              user ? (
+                <>
+                  <Button asChild>
+                    <Link href="/dashboard/create">
+                      <PenSquare className="mr-2 h-4 w-4" />
+                      New Post
+                    </Link>
+                  </Button>
+                  <Link href="/dashboard">
+                    <Avatar className="cursor-pointer">
+                      <AvatarImage src={user.photoURL || 'https://placehold.co/100x100.png'} alt={user.displayName || 'User Avatar'} data-ai-hint="portrait person" />
+                      <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
                   </Link>
-                </Button>
-                <Link href="/dashboard">
-                  <Avatar className="cursor-pointer">
-                    <AvatarImage src={user.photoURL || 'https://placehold.co/100x100.png'} alt={user.displayName || 'User Avatar'} data-ai-hint="portrait person" />
-                    <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                </Link>
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
-                    <LogOut className="h-5 w-5"/>
-                    <span className="sr-only">Logout</span>
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" asChild>
-                  <Link href="/login">Login</Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/signup">Sign Up</Link>
-                </Button>
-              </>
+                  <Button variant="ghost" size="icon" onClick={handleLogout}>
+                      <LogOut className="h-5 w-5"/>
+                      <span className="sr-only">Logout</span>
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild>
+                    <Link href="/login">Login</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/signup">Sign Up</Link>
+                  </Button>
+                </>
+              )
             )}
           </div>
         </div>
