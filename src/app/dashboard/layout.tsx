@@ -15,14 +15,17 @@ export default function DashboardLayout({
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  // Middleware now handles the primary redirection. 
-  // This useEffect is a fallback and ensures client-side consistency.
+  // The middleware is the primary gatekeeper. This check is a client-side
+  // fallback for consistency and to handle cases where the user's session
+  // expires while they are on the site. We no longer redirect from here if loading.
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
 
+  // While the auth state is loading, or if the user is not yet available,
+  // display a skeleton loader. This prevents the redirect loop.
   if (loading || !user) {
     return (
         <div className="space-y-8">
@@ -35,5 +38,6 @@ export default function DashboardLayout({
     );
   }
 
+  // Once the user is confirmed, render the children.
   return <>{children}</>;
 }
