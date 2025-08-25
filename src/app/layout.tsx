@@ -5,7 +5,7 @@ import { Header } from '@/components/header';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Echo Chamber',
+  title: 'Blog Page',
   description: 'A place for thoughts and ideas to reverberate.',
 };
 
