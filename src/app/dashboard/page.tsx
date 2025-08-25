@@ -6,13 +6,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { Edit, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 
 export default async function DashboardPage() {
   const currentUser = await getCurrentUser();
   const userPosts = await getUserPosts(currentUser.id);
-
-  const posts = userPosts;
 
   return (
     <div className="fade-in">
@@ -35,8 +32,8 @@ export default async function DashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {posts.length > 0 ? (
-                posts.map((post) => (
+              {userPosts.length > 0 ? (
+                userPosts.map((post) => (
                   <TableRow key={post.id}>
                     <TableCell className="font-medium">
                       <Link href={`/posts/${post.id}`} className="hover:underline">
