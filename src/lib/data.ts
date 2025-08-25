@@ -78,15 +78,7 @@ export async function getPost(id: string): Promise<Post | undefined> {
 }
 
 export async function getUserPosts(userId: string): Promise<Post[]> {
-  // In a real app, you would fetch this from Firestore based on the userId
-  // For this demo, we'll filter the mock data.
+  await new Promise(resolve => setTimeout(resolve, 500));
   if (!userId) return [];
-  const allPosts = await getPosts();
-  
-  const user = users.find(u => u.id === userId);
-  if (user?.role === 'admin') {
-      return allPosts;
-  }
-  
-  return allPosts.filter(p => p.author.id === userId);
+  return posts.filter(p => p.author.id === userId);
 }

@@ -8,7 +8,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { Edit, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -26,7 +25,11 @@ import { getUserPosts } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface DashboardContentClientProps {
-  currentUser: User;
+  currentUser: {
+      id: string;
+      name: string;
+      avatarUrl: string;
+  };
 }
 
 export function DashboardContentClient({ currentUser }: DashboardContentClientProps) {
@@ -37,13 +40,24 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
 
   useEffect(() => {
     async function fetchUserPosts() {
+      if (!currentUser?.id) return;
       setLoading(true);
-      const userPosts = await getUserPosts(currentUser.id);
-      setPosts(userPosts);
-      setLoading(false);
+      try {
+        const userPosts = await getUserPosts(currentUser.id);
+        setPosts(userPosts);
+      } catch (error) {
+        console.error("Failed to fetch posts:", error);
+        toast({
+            title: "Error",
+            description: "Could not fetch your posts.",
+            variant: "destructive"
+        })
+      } finally {
+        setLoading(false);
+      }
     }
     fetchUserPosts();
-  }, [currentUser.id]);
+  }, [currentUser?.id, toast]);
 
 
   const handleDelete = async (postId: string) => {
@@ -119,55 +133,50 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
                     <Link href={`/posts/${post.id}`} className="hover:underline">
                       {post.title}
                     </Link>
-                    {post.author.id === currentUser.id && <Badge variant="secondary" className="ml-2">Your Post</Badge>}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {format(new Date(post.createdAt), 'PPP')}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                       { (currentUser.role === 'admin' || post.author.id === currentUser.id) && 
-                        <>
-                            <Button variant="ghost" size="icon" asChild>
-                                <Link href={`/dashboard/edit/${post.id}`}>
-                                <Edit className="h-4 w-4" />
-                                <span className="sr-only">Edit</span>
-                                </Link>
+                        <Button variant="ghost" size="icon" asChild>
+                            <Link href={`/dashboard/edit/${post.id}`}>
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                            </Link>
+                        </Button>
+                        
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="text-destructive hover:text-destructive"
+                                disabled={isDeleting === post.id}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete</span>
                             </Button>
-                            
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon" 
-                                    className="text-destructive hover:text-destructive"
-                                    disabled={isDeleting === post.id}
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete your post
+                                "{post.title}" and remove it from our servers.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction 
+                                onClick={() => handleDelete(post.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                    <Trash2 className="h-4 w-4" />
-                                    <span className="sr-only">Delete</span>
-                                </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete your post
-                                    "{post.title}" and remove it from our servers.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction 
-                                    onClick={() => handleDelete(post.id)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    >
-                                    {isDeleting === post.id ? "Deleting..." : "Delete"}
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                        </>
-                       }
+                                {isDeleting === post.id ? "Deleting..." : "Delete"}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                   </TableCell>
                 </TableRow>
