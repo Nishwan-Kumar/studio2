@@ -20,7 +20,7 @@ export default function DashboardLayout({
   // While the auth state is being confirmed, display a skeleton loader.
   if (loading) {
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 p-8">
             <div className="flex justify-between items-center">
                 <Skeleton className="h-12 w-64" />
                 <Skeleton className="h-10 w-40" />
@@ -30,16 +30,17 @@ export default function DashboardLayout({
     );
   }
   
-  // If, after loading, there is no user, the middleware should have already
-  // redirected. This is a fallback state.
+  // If, after loading, there is no user, the middleware will handle the redirect.
+  // This is a fallback case and should ideally not be reached if middleware is working.
+  // We previously had a redirect here which was causing the bug. It has been removed.
   if (!user) {
-    // A full page redirect to ensure middleware re-evaluates.
+    // A full page redirect is a final safety net if the middleware somehow fails.
      useEffect(() => {
-        router.push('/login');
-    }, [router]);
+        window.location.href = '/login';
+    }, []);
     
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 p-8">
             <div className="flex justify-between items-center">
                 <Skeleton className="h-12 w-64" />
                 <Skeleton className="h-10 w-40" />
