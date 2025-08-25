@@ -18,7 +18,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-<<<<<<< HEAD
   // Performance optimizations
   devIndicators: false,
   // Enable SWC minification for faster builds
@@ -29,8 +28,6 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizeCss: true,
   },
-=======
->>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
 };
 
 export default nextConfig;
