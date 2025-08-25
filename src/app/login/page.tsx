@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { signInWithEmailAndPassword, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -39,6 +39,7 @@ const setAuthCookie = async (user: User) => {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
@@ -57,12 +58,13 @@ export default function LoginPage() {
       
       toast({
         title: "Login Successful",
-        description: "Welcome back! Redirecting you to the dashboard...",
+        description: "Welcome back! Redirecting you...",
       });
 
-      // Instead of router.push, we do a full page reload to the dashboard.
+      const redirectUrl = searchParams.get('redirect') || '/dashboard';
+      // Instead of router.push, we do a full page reload.
       // This ensures the middleware has the latest cookie information.
-      window.location.href = '/dashboard';
+      window.location.href = redirectUrl;
       
     } catch (error: any) {
       toast({
