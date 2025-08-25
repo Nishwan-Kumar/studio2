@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, setDoc } from "firebase/firestore"; 
 import Link from 'next/link';
@@ -26,6 +26,23 @@ const signupFormSchema = z.object({
 });
 
 type SignupFormValues = z.infer<typeof signupFormSchema>;
+
+
+const setAuthCookie = async (user: User) => {
+  const token = await user.getIdToken(true);
+  const response = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to set auth cookie');
+  }
+};
+
 
 export default function SignupPage() {
   const router = useRouter();
@@ -52,12 +69,17 @@ export default function SignupPage() {
         email: data.email,
         avatarUrl: `https://placehold.co/100x100.png`
       });
+      
+      await setAuthCookie(user);
 
       toast({
         title: "Account Created",
-        description: "You have been successfully signed up.",
+        description: "You have been successfully signed up. Redirecting...",
       });
-      router.push('/dashboard');
+
+      // Use a full page reload to ensure middleware has the latest cookie info.
+      window.location.href = '/dashboard';
+
     } catch (error: any) {
        toast({
         title: "Sign up Failed",
