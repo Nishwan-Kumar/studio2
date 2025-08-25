@@ -1,8 +1,11 @@
+
 export type User = {
   id: string;
   name: string;
   avatarUrl: string;
   role?: 'admin';
+  uid?: string;
+  email?: string;
 };
 
 export type Comment = {
@@ -10,6 +13,7 @@ export type Comment = {
   text: string;
   author: User;
   createdAt: string;
+  authorId?: string;
 };
 
 export type Post = {
@@ -21,4 +25,5 @@ export type Post = {
   createdAt: string;
   comments: Comment[];
   likes: number;
+  authorId?: string;
 };

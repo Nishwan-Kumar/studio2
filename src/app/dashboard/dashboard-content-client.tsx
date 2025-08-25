@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { Post, User } from '@/lib/types';
+import type { Post } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -18,17 +18,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { getUserPosts } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
 
 interface DashboardContentClientProps {
   currentUser: {
-      id: string;
-      name: string;
-      avatarUrl: string;
+      uid: string;
+      displayName: string | null;
   };
 }
 
@@ -37,13 +36,17 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const { toast } = useToast();
   const [loading, setLoading] = useState<boolean>(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<Post | null>(null);
+  const router = useRouter();
+
 
   useEffect(() => {
     async function fetchUserPosts() {
-      if (!currentUser?.id) return;
+      if (!currentUser?.uid) return;
       setLoading(true);
       try {
-        const userPosts = await getUserPosts(currentUser.id);
+        const userPosts = await getUserPosts(currentUser.uid);
         setPosts(userPosts);
       } catch (error) {
         console.error("Failed to fetch posts:", error);
@@ -57,20 +60,28 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
       }
     }
     fetchUserPosts();
-  }, [currentUser?.id, toast]);
+  }, [currentUser?.uid, toast]);
 
 
-  const handleDelete = async (postId: string) => {
-    setIsDeleting(postId);
+  const handleDelete = async () => {
+    if (!postToDelete) return;
+
+    setIsDeleting(postToDelete.id);
     try {
-      // Simulate API call for deletion
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setPosts(posts.filter(post => post.id !== postId));
+      const response = await fetch(`/api/posts/${postToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete post');
+      }
       
+      setPosts(posts.filter(post => post.id !== postToDelete.id));
       toast({
         title: "Post Deleted",
         description: "Your post has been successfully deleted.",
       });
+      router.refresh();
     } catch (error) {
       toast({
         title: "Delete Failed",
@@ -79,8 +90,15 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
       });
     } finally {
       setIsDeleting(null);
+      setPostToDelete(null);
+      setDialogOpen(false);
     }
   };
+
+  const openDeleteDialog = (post: Post) => {
+    setPostToDelete(post);
+    setDialogOpen(true);
+  }
 
   if (loading) {
     return (
@@ -115,6 +133,7 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
   }
 
   return (
+    <>
     <Card>
       <CardContent className="p-0">
         <Table>
@@ -146,37 +165,16 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
                             </Link>
                         </Button>
                         
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="text-destructive hover:text-destructive"
-                                disabled={isDeleting === post.id}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">Delete</span>
-                            </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete your post
-                                "{post.title}" and remove it from our servers.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction 
-                                onClick={() => handleDelete(post.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                {isDeleting === post.id ? "Deleting..." : "Delete"}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-destructive hover:text-destructive"
+                            disabled={isDeleting === post.id}
+                            onClick={() => openDeleteDialog(post)}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Delete</span>
+                        </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -201,5 +199,27 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
         </Table>
       </CardContent>
     </Card>
+    <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your post
+            "{postToDelete?.title}" and remove it from our servers.
+            </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+            onClick={handleDelete}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            disabled={isDeleting === postToDelete?.id}
+            >
+            {isDeleting === postToDelete?.id ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+        </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

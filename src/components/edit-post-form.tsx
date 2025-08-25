@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from 'react-hook-form';
@@ -37,14 +38,33 @@ export function EditPostForm({ post }: EditPostFormProps) {
     },
   });
 
-  function onSubmit(data: PostFormValues) {
-    console.log(data);
-    // Here you would call an API to update the post
-    toast({
-      title: "Post Updated!",
-      description: "Your post has been successfully updated.",
-    });
-    router.push('/dashboard');
+  async function onSubmit(data: PostFormValues) {
+    try {
+      const response = await fetch(`/api/posts/${post.id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+          throw new Error('Failed to update post');
+      }
+
+      toast({
+        title: "Post Updated!",
+        description: "Your post has been successfully updated.",
+      });
+      router.push('/dashboard');
+      router.refresh();
+    } catch (error) {
+       toast({
+        title: "Error",
+        description: "There was an error updating your post. Please try again.",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -100,7 +120,9 @@ export function EditPostForm({ post }: EditPostFormProps) {
                 />
                 <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-                    <Button type="submit">Save Changes</Button>
+                    <Button type="submit" disabled={form.formState.isSubmitting}>
+                        {form.formState.isSubmitting ? 'Saving...' : 'Save Changes'}
+                    </Button>
                 </div>
             </form>
             </Form>

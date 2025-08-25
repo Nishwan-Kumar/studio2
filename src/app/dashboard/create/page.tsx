@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from 'react-hook-form';
@@ -10,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/auth-context';
 
 const postFormSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -22,6 +24,7 @@ type PostFormValues = z.infer<typeof postFormSchema>;
 export default function CreatePostPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postFormSchema),
@@ -32,14 +35,42 @@ export default function CreatePostPage() {
     },
   });
 
-  function onSubmit(data: PostFormValues) {
-    console.log(data);
-    // Here you would call an API to create the post
-    toast({
-      title: "Post Created!",
-      description: "Your new post has been successfully created.",
-    });
-    router.push('/dashboard');
+  async function onSubmit(data: PostFormValues) {
+    if (!user) {
+        toast({
+            title: "Authentication Error",
+            description: "You must be logged in to create a post.",
+            variant: "destructive"
+        });
+        return;
+    }
+
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...data, authorId: user.uid }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create post');
+      }
+
+      toast({
+        title: "Post Created!",
+        description: "Your new post has been successfully created.",
+      });
+      router.push('/dashboard');
+      router.refresh(); // Refresh server components
+    } catch (error) {
+       toast({
+        title: "Error",
+        description: "There was an error creating your post. Please try again.",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -96,7 +127,9 @@ export default function CreatePostPage() {
                     />
                     <div className="flex justify-end gap-2">
                          <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-                        <Button type="submit">Create Post</Button>
+                        <Button type="submit" disabled={form.formState.isSubmitting}>
+                            {form.formState.isSubmitting ? 'Creating...' : 'Create Post'}
+                        </Button>
                     </div>
                 </form>
                 </Form>
