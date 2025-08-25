@@ -153,7 +153,7 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
                     </Link>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {isClient ? format(new Date(post.createdAt), 'PPP') : <Skeleton className="h-5 w-24" />}
+                    {isClient ? format(new Date(post.createdAt), 'PPP') : ''}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
