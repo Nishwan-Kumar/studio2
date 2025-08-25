@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 
 import { Button } from '@/components/ui/button';
@@ -148,10 +149,25 @@ export default function DashboardPage() {
       </div>
     );
   }
+=======
+
+import Link from 'next/link';
+import { getUserPosts, getCurrentUser } from '@/lib/data';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { format } from 'date-fns';
+import { Edit, Trash2 } from 'lucide-react';
+
+export default async function DashboardPage() {
+  const currentUser = await getCurrentUser();
+  const userPosts = await getUserPosts(currentUser.id);
+>>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
 
   return (
     <div className="fade-in">
       <div className="flex justify-between items-center mb-8">
+<<<<<<< HEAD
         <div>
           <h1 className="text-4xl font-headline font-bold">{title}</h1>
           <div className="flex items-center gap-2">
@@ -189,12 +205,68 @@ export default function DashboardPage() {
             </Dialog>
           </div>
         </div>
+=======
+        <h1 className="text-4xl font-headline font-bold">Welcome, {currentUser.name}</h1>
+>>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
         <Button asChild>
           <Link href="/dashboard/create">Create New Post</Link>
         </Button>
       </div>
 
+<<<<<<< HEAD
       <DashboardContentClient currentUser={appUser} initialPosts={posts} />
+=======
+       <h2 className="text-2xl font-headline font-bold mb-4">Your Posts</h2>
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-headline">Title</TableHead>
+                <TableHead className="font-headline hidden md:table-cell">Date</TableHead>
+                <TableHead className="font-headline text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {userPosts.length > 0 ? (
+                userPosts.map((post) => (
+                  <TableRow key={post.id}>
+                    <TableCell className="font-medium">
+                      <Link href={`/posts/${post.id}`} className="hover:underline">
+                        {post.title}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {format(new Date(post.createdAt), 'PPP')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                         <Button variant="ghost" size="icon" asChild>
+                           <Link href={`/dashboard/edit/${post.id}`}>
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                           </Link>
+                         </Button>
+                         <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                           <Trash2 className="h-4 w-4" />
+                           <span className="sr-only">Delete</span>
+                         </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center h-24">
+                    You haven't written any posts yet.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+>>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
     </div>
   );
 }

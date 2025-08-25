@@ -65,14 +65,25 @@ We'll highlight companies leading the charge and discuss how developers and cons
 ];
 
 export async function getPosts(): Promise<Post[]> {
+<<<<<<< HEAD
+=======
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+>>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
   return Promise.resolve(posts);
 }
 
 export async function getPost(id: string): Promise<Post | undefined> {
+<<<<<<< HEAD
+=======
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 300));
+>>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
   return Promise.resolve(posts.find((post) => post.id === id));
 }
 
 export async function getUserPosts(userId: string): Promise<Post[]> {
+<<<<<<< HEAD
   // For demo purposes, map Firebase UIDs to mock user IDs
   // In a real application, this would query Firestore for posts by user ID
   const userMap: Record<string, string> = {
@@ -85,6 +96,11 @@ export async function getUserPosts(userId: string): Promise<Post[]> {
   
   const mockUserId = userMap[userId] || userId;
   return Promise.resolve(posts.filter(post => post.author.id === mockUserId));
+=======
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 400));
+  return Promise.resolve(posts.filter(post => post.author.id === userId));
+>>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
 }
 
 // Mock current user

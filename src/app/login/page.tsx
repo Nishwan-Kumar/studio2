@@ -60,10 +60,16 @@ export default function LoginPage() {
         description: "Welcome back! Redirecting you to the dashboard...",
       });
 
+<<<<<<< HEAD
       // Use client-side navigation for faster redirection
       // The middleware will handle authentication with the newly set cookie
       router.push('/dashboard');
       router.refresh(); // Refresh to ensure middleware runs with new cookie
+=======
+      // Instead of router.push, we do a full page reload to the dashboard.
+      // This ensures the middleware has the latest cookie information.
+      window.location.href = '/dashboard';
+>>>>>>> aec7a1f9ed59d9ba526cc27cd042379283eac6a7
       
     } catch (error: any) {
       toast({
