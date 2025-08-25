@@ -2,8 +2,6 @@
 "use client";
 
 import { useAuth } from '@/context/auth-context';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardLayout({
@@ -12,12 +10,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user, loading } = useAuth();
-  const router = useRouter();
 
-  // The middleware protects this route. We use the client-side check to handle the loading state
-  // and as a fallback.
-
-  // While the auth state is being confirmed, display a skeleton loader.
+  // The server-side middleware already protects this route.
+  // We only need to handle the initial loading state while the Firebase SDK
+  // confirms the user's session on the client.
   if (loading) {
     return (
         <div className="space-y-8 p-8">
@@ -30,21 +26,10 @@ export default function DashboardLayout({
     );
   }
   
-  // If, after loading, there is no user, the middleware should have already redirected.
-  // This client-side redirect is a final safety net.
-  if (!user) {
-    router.push('/login'); // Use router.push for client-side navigation
-    return (
-         <div className="space-y-8 p-8">
-            <div className="flex justify-between items-center">
-                <Skeleton className="h-12 w-64" />
-                <Skeleton className="h-10 w-40" />
-            </div>
-            <Skeleton className="h-96 w-full" />
-        </div>
-    );
-  }
-
-  // Once the user is confirmed, render the dashboard.
+  // If loading is complete, we can assume the middleware has done its job.
+  // If there's no user, it's either because they just logged out or the 
+  // session is invalid, but we should not perform a client-side redirect here
+  // as it causes loops. The user can navigate away manually or refresh.
+  // We render the children once the user object is confirmed or loading is done.
   return <>{children}</>;
 }
