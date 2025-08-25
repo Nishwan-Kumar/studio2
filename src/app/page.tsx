@@ -7,22 +7,56 @@ import type { Post } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
-import { Heart } from 'lucide-react';
 import { LikeButton } from '@/components/like-button';
 import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
     async function loadPosts() {
+        setLoading(true);
         const fetchedPosts = await getPosts();
         setPosts(fetchedPosts);
+        setLoading(false);
     }
     loadPosts();
   }, []);
+
+  if (loading) {
+    return (
+        <div className="fade-in">
+            <h1 className="text-4xl font-headline font-bold mb-8 text-center md:text-left">Latest Posts</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[...Array(3)].map((_, i) => (
+                    <Card key={i} className="h-full flex flex-col">
+                        <CardHeader>
+                            <Skeleton className="h-7 w-3/4 mb-2" />
+                            <Skeleton className="h-4 w-full" />
+                        </CardHeader>
+                        <CardContent className="flex-grow"></CardContent>
+                        <CardFooter>
+                           <div className="flex items-center justify-between w-full">
+                                <div className="flex items-center">
+                                    <Skeleton className="h-8 w-8 mr-3 rounded-full" />
+                                    <div>
+                                        <Skeleton className="h-4 w-24 mb-1" />
+                                        <Skeleton className="h-3 w-20" />
+                                    </div>
+                                </div>
+                                <Skeleton className="h-8 w-12" />
+                            </div>
+                        </CardFooter>
+                    </Card>
+                ))}
+            </div>
+        </div>
+    )
+  }
 
   return (
     <div className="fade-in">
@@ -46,7 +80,7 @@ export default function Home() {
                     </Avatar>
                     <div>
                         <p className="text-sm font-medium">{post.author.name}</p>
-                        <p className="text-xs text-muted-foreground">{isClient ? format(new Date(post.createdAt), 'PPP') : ''}</p>
+                        <p className="text-xs text-muted-foreground">{isClient ? format(new Date(post.createdAt), 'PPP') : <Skeleton className="h-3 w-20" />}</p>
                     </div>
                 </div>
                 <LikeButton initialLikes={post.likes} />

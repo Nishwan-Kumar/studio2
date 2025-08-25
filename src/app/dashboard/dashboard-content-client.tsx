@@ -23,12 +23,10 @@ import { useToast } from '@/hooks/use-toast';
 import { getUserPosts } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
+import type { User } from 'firebase/auth';
 
 interface DashboardContentClientProps {
-  currentUser: {
-      uid: string;
-      displayName: string | null;
-  };
+  currentUser: User | null;
 }
 
 export function DashboardContentClient({ currentUser }: DashboardContentClientProps) {
@@ -39,9 +37,10 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
   const [dialogOpen, setDialogOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<Post | null>(null);
   const router = useRouter();
-
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     async function fetchUserPosts() {
       if (!currentUser?.uid) return;
       setLoading(true);
@@ -154,7 +153,7 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
                     </Link>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {format(new Date(post.createdAt), 'PPP')}
+                    {isClient ? format(new Date(post.createdAt), 'PPP') : <Skeleton className="h-5 w-24" />}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">

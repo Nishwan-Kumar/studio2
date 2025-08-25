@@ -26,8 +26,8 @@ export default function DashboardPage() {
     // This can happen briefly on logout or if session expires.
     // The middleware prevents unauthorized access, so we just show a message.
     return (
-      <div className="text-center">
-        <p>You need to be logged in to view this page.</p>
+      <div className="text-center py-12">
+        <p className="text-lg text-muted-foreground">You need to be logged in to view this page.</p>
         <Button asChild className="mt-4">
           <Link href="/login">Login</Link>
         </Button>
@@ -44,7 +44,7 @@ export default function DashboardPage() {
         </Button>
       </div>
       <h2 className="text-2xl font-headline font-bold mb-4">Your Posts</h2>
-      <DashboardContentClient currentUser={{id: user.uid, name: user.displayName || 'User', avatarUrl: user.photoURL || ''}} />
+      <DashboardContentClient currentUser={user} />
     </div>
   );
 }
