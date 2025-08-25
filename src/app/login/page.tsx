@@ -13,6 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { signInWithEmailAndPassword, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const loginFormSchema = z.object({
   email: z.string().email("Invalid email address."),
@@ -41,6 +43,12 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -83,39 +91,53 @@ export default function LoginPage() {
           <CardDescription>Enter your credentials to access your account.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="name@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? 'Logging in...' : 'Login'}
-              </Button>
-            </form>
-          </Form>
+          {!isClient ? (
+             <div className="space-y-6">
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-12" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+                 <div className="space-y-2">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+                <Skeleton className="h-10 w-full" />
+             </div>
+          ) : (
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                        <Input type="email" placeholder="name@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                        <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? 'Logging in...' : 'Login'}
+                </Button>
+                </form>
+            </Form>
+          )}
            <p className="mt-6 text-center text-sm text-muted-foreground">
             Don't have an account?{' '}
             <Link href="/signup" className="text-primary hover:underline">
