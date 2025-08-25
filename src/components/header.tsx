@@ -44,8 +44,8 @@ export function Header() {
                     New Post
                   </Link>
                 </Button>
-                <Link href="/dashboard">
-                  <Avatar>
+                <Link href="/dashboard" passHref>
+                  <Avatar className="cursor-pointer">
                     <AvatarImage src={user.photoURL || 'https://placehold.co/100x100.png'} alt={user.displayName || 'User Avatar'} data-ai-hint="portrait person" />
                     <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
