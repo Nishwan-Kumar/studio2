@@ -41,6 +41,10 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+
+  useEffect(() => {
     async function fetchUserPosts() {
       if (!currentUser?.uid) return;
       setLoading(true);
@@ -58,7 +62,9 @@ export function DashboardContentClient({ currentUser }: DashboardContentClientPr
         setLoading(false);
       }
     }
-    fetchUserPosts();
+    if (currentUser?.uid) {
+        fetchUserPosts();
+    }
   }, [currentUser?.uid, toast]);
 
 

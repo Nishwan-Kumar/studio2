@@ -64,7 +64,7 @@ export default function CreatePostPage() {
         description: "Your new post has been successfully created.",
       });
       router.push('/dashboard');
-      router.refresh(); // Refresh server components
+      router.refresh(); 
     } catch (error) {
        toast({
         title: "Error",
@@ -81,7 +81,7 @@ export default function CreatePostPage() {
                 <CardHeader>
                     <Skeleton className="h-9 w-64" />
                 </CardHeader>
-                <CardContent className="space-y-8">
+                <CardContent className="space-y-8 pt-6">
                     <div className="space-y-2">
                         <Skeleton className="h-4 w-12" />
                         <Skeleton className="h-10 w-full" />
